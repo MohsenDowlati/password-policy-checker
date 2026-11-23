@@ -3,6 +3,7 @@
 
 # Returns 0 if password is composed of a single character (VIOLATION)
 # Returns 1 if password contains diverse characters
+# O(N) and didn't use grep
 is_single_char_repeated() {
   local pw="$1"
   local len="${#pw}"

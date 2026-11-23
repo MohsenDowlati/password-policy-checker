@@ -5,11 +5,10 @@ set -euo pipefail
 BIN_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_ROOT="$(cd -P "$BIN_DIR/.." && pwd)"
 
-# Source internal modules
-# shellcheck source=lib/utils.sh
+
 source "$APP_ROOT/lib/utils.sh"
-# shellcheck source=lib/config.sh
 source "$APP_ROOT/lib/config.sh"
+source "$APP_ROOT/lib/composition.sh"
 
 show_help() {
   cat << 'EOF'
@@ -97,22 +96,24 @@ if [[ -z "$PASSWORD" ]]; then
   exit 2
 fi
 
-PASS_LEN=0
-pw_len="${#PASSWORD}"
+HAS_VIOLATIONS=0
 
+pw_len="${#PASSWORD}"
 if (( pw_len < MIN_LENGTH )); then
-  printf '[FAIL] Length check: %d characters (minimum required is %d)\n' "$pw_len" "$MIN_LENGTH"
-  PASS_LEN=1
+  log_fail "Length check: $pw_len characters (minimum required is $MIN_LENGTH)"
+  HAS_VIOLATIONS=1
 elif (( pw_len > MAX_LENGTH )); then
-  printf '[FAIL] Length check: %d characters (maximum allowed is %d)\n' "$pw_len" "$MAX_LENGTH"
-  PASS_LEN=1
+  log_fail "Length check: $pw_len characters (maximum allowed is $MAX_LENGTH)"
+  HAS_VIOLATIONS=1
 else
-  printf '[PASS] Length check: %d characters (allowed: %d-%d)\n' "$pw_len" "$MIN_LENGTH" "$MAX_LENGTH"
+  log_pass "Length check: $pw_len characters (allowed: $MIN_LENGTH-$MAX_LENGTH)"
 fi
 
-printf '[INFO] Additional policy checks (entropy, patterns, breach lists) will run in Phase 2.\n'
+if ! check_single_char_repeat "$PASSWORD"; then
+  HAS_VIOLATIONS=1
+fi
 
-if (( PASS_LEN != 0 )); then
+if (( HAS_VIOLATIONS != 0 )); then
   exit 1
 fi
 
