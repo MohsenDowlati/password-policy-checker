@@ -2,9 +2,9 @@
 
 # TODO
 ## Length & Composition
-- [ ] Minimum length ≥ 14 (NIST SP 800-63B favors length over complexity)
-- [ ] Maximum length ≥ 64 (don’t truncate — bcrypt’s 72-byte limit is the classic pitfall)
-- [ ] No forced character-class rules (upper/lower/digit/symbol) — modern guidance discourages them
+- [x] Minimum length ≥ 14 (NIST SP 800-63B favors length over complexity)
+- [x] Maximum length ≥ 64 (don’t truncate — bcrypt’s 72-byte limit is the classic pitfall)
+- [x] No forced character-class rules (upper/lower/digit/symbol) — modern guidance discourages them
 - [ ] Reject passwords composed of a single repeated character (aaaaaa…)
 - [ ] Reject sequential runs (abcdef, 123456, qwerty) — forwards and backwards
 - [ ] Reject keyboard-walk patterns (asdfgh, zxcvbn-style rows)
