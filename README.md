@@ -6,8 +6,8 @@
 - [x] Maximum length ≥ 64 (don’t truncate — bcrypt’s 72-byte limit is the classic pitfall)
 - [x] No forced character-class rules (upper/lower/digit/symbol) — modern guidance discourages them
 - [x] Reject passwords composed of a single repeated character (aaaaaa…)
-- [ ] Reject sequential runs (abcdef, 123456, qwerty) — forwards and backwards
-- [ ] Reject keyboard-walk patterns (asdfgh, zxcvbn-style rows)
+- [x] Reject sequential runs (abcdef, 123456, qwerty) — forwards and backwards
+- [x] Reject keyboard-walk patterns (asdfgh, zxcvbn-style rows)
 ## Entropy & Strength Estimation
 - [ ] Shannon entropy estimate (bits) with a configurable threshold (e.g. ≥ 60 bits)
 - [ ] Character-set-size based entropy: log2(pool_size) × length
