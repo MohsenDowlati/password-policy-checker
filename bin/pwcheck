@@ -1,0 +1,119 @@
+#!/usr/bin/bash
+set -euo pipefail
+
+# Determine workspace root
+BIN_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+APP_ROOT="$(cd -P "$BIN_DIR/.." && pwd)"
+
+# Source internal modules
+# shellcheck source=lib/utils.sh
+source "$APP_ROOT/lib/utils.sh"
+# shellcheck source=lib/config.sh
+source "$APP_ROOT/lib/config.sh"
+
+show_help() {
+  cat << 'EOF'
+Usage: pwcheck [OPTIONS]
+
+Checks password compliance against configured security policies.
+Passwords must be provided interactively or piped via stdin.
+
+Options:
+  -c, --config PATH    Path to policy configuration file (default: config/policy.conf)
+  -s, --stdin          Read password from standard input (first line only)
+      --check-config   Validate syntax and values of configuration file and exit
+  -h, --help           Show this help message and exit
+
+Exit Status:
+  0  Password passes all active checks
+  1  Password fails policy requirements
+  2  Usage error, missing input, or invalid configuration
+EOF
+}
+
+# Default options
+CONFIG_FILE="$APP_ROOT/config/policy.conf"
+USE_STDIN=0
+CHECK_CONFIG_ONLY=0
+
+# Flag parsing
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+    -c|--config)
+      [[ $# -ge 2 ]] || { log_error "Option '$1' requires a file path argument."; exit 2; }
+      CONFIG_FILE="$2"
+      shift 2
+      ;;
+    -s|--stdin)
+      USE_STDIN=1
+      shift
+      ;;
+    --check-config)
+      CHECK_CONFIG_ONLY=1
+      shift
+      ;;
+    *)
+      log_error "Unknown option: $1 (Run with --help for usage)"
+      exit 2
+      ;;
+  esac
+done
+
+# Load and validate config
+load_config "$CONFIG_FILE" || exit 2
+
+if (( CHECK_CONFIG_ONLY == 1 )); then
+  printf 'Configuration at "%s" is valid.\n' "$CONFIG_FILE"
+  printf '  MIN_LENGTH=%d\n  MAX_LENGTH=%d\n' "$MIN_LENGTH" "$MAX_LENGTH"
+  exit 0
+fi
+
+# Acquire password securely
+PASSWORD=""
+if (( USE_STDIN == 1 )); then
+  if ! IFS= read -r PASSWORD; then
+    log_error "No input received on stdin."
+    exit 2
+  fi
+else
+  # Interactive mode via /dev/tty
+  if [[ ! -t 0 && ! -e /dev/tty ]]; then
+    log_error "Cannot read interactively without a TTY. Use --stdin instead."
+    exit 2
+  fi
+  printf 'Enter password to evaluate: ' > /dev/tty
+  # Silent read (-s) preserving whitespace/backslashes (IFS= read -r)
+  IFS= read -r -s PASSWORD < /dev/tty
+  printf '\n' > /dev/tty
+fi
+
+# Edge-case: empty input
+if [[ -z "$PASSWORD" ]]; then
+  log_error "Password input is empty."
+  exit 2
+fi
+
+PASS_LEN=0
+pw_len="${#PASSWORD}"
+
+if (( pw_len < MIN_LENGTH )); then
+  printf '[FAIL] Length check: %d characters (minimum required is %d)\n' "$pw_len" "$MIN_LENGTH"
+  PASS_LEN=1
+elif (( pw_len > MAX_LENGTH )); then
+  printf '[FAIL] Length check: %d characters (maximum allowed is %d)\n' "$pw_len" "$MAX_LENGTH"
+  PASS_LEN=1
+else
+  printf '[PASS] Length check: %d characters (allowed: %d-%d)\n' "$pw_len" "$MIN_LENGTH" "$MAX_LENGTH"
+fi
+
+printf '[INFO] Additional policy checks (entropy, patterns, breach lists) will run in Phase 2.\n'
+
+if (( PASS_LEN != 0 )); then
+  exit 1
+fi
+
+exit 0
