@@ -75,7 +75,7 @@ fi
 # Acquire password securely
 PASSWORD=""
 if (( USE_STDIN == 1 )); then
-  if ! IFS= read -r PASSWORD; then
+  if ! IFS= read -r PASSWORD && [[ -z "$PASSWORD" ]]; then
     log_error "No input received on stdin."
     exit 2
   fi
