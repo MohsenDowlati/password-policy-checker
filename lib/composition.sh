@@ -33,3 +33,20 @@ check_single_char_repeat() {
   log_pass "Repeated character check: Passed (no single-character repetition)"
   return 0
 }
+
+_has_six_char_run() {
+  local text="${1,,}"  # Case-insensitive ASCII matching
+  shift
+
+  local row i fragment
+  for row in "$@"; do
+    for ((i = 0; i + 6 <= ${#row}; i++)); do
+      fragment="${row:i:6}"
+      if [[ "$text" == *"$fragment"* ]]; then
+        return 0
+      fi
+    done
+  done
+
+  return 1
+}
