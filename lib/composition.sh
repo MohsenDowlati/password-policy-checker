@@ -50,3 +50,28 @@ _has_six_char_run() {
 
   return 1
 }
+
+check_sequential_run() {
+  if _has_six_char_run "$1" \
+    abcdefghijklmnopqrstuvwxyz zyxwvutsrqponmlkjihgfedcba \
+    0123456789 9876543210; then
+    log_fail "Sequential run check: six consecutive letters or digits detected"
+    return 1
+  fi
+
+  log_pass "Sequential run check: Passed"
+  return 0
+}
+
+check_keyboard_walk() {
+  if _has_six_char_run "$1" \
+    qwertyuiop poiuytrewq \
+    asdfghjkl lkjhgfdsa \
+    zxcvbnm mnbvcxz; then
+    log_fail "Keyboard walk check: six adjacent keys in a QWERTY row detected"
+    return 1
+  fi
+
+  log_pass "Keyboard walk check: Passed"
+  return 0
+}
