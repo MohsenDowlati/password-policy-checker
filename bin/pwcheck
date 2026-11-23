@@ -117,6 +117,10 @@ if ! check_sequential_run "$PASSWORD"; then
   HAS_VIOLATIONS=1
 fi
 
+if ! check_keyboard_walk "$PASSWORD"; then
+  HAS_VIOLATIONS=1
+fi
+
 if (( HAS_VIOLATIONS != 0 )); then
   exit 1
 fi
