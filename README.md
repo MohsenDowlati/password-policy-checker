@@ -16,8 +16,6 @@
 ## Blocklist / Denylist Checks
 - [x] Check against a common-password list (rockyou.txt, SecLists/10-million-password-list-top-1000000.txt)
 - [x] Case-insensitive and leetspeak-normalized matching before lookup
-- [ ] Check against project/company name, username, email local-part
-- [ ] Check against a “context words” file (brand names, product names, city names)
 - [ ] Optional: HIBP k-anonymity API check (SHA-1 prefix, first 5 hex chars only — never send the full hash)
 ## Reuse & History
 - [ ] Enforce “not one of the last N passwords” (N = 5–24) via a history file

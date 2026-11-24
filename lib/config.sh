@@ -44,7 +44,7 @@ load_config() {
 
     # Validate according to allowlisted keys
     case "$key" in
-  MIN_LENGTH|MAX_LENGTH|MIN_POOL_ENTROPY|MIN_SHANNON_ENTROPY|MIN_ZXCVBN_SCORE|DENYLIST_ENABLED)
+  MIN_LENGTH|MAX_LENGTH|MIN_POOL_ENTROPY|MIN_SHANNON_ENTROPY|MIN_ZXCVBN_SCORE|DENYLIST_ENABLED|HIBP_CHECK_ENABLED|HIBP_TIMEOUT)
     if [[ ! "$val" =~ ^[0-9]+$ ]]; then
       log_error "Key '$key' must be a numeric integer. Got '$val' at line $line_no"
       return 2
@@ -96,6 +96,18 @@ if (( DENYLIST_ENABLED != 0 && DENYLIST_ENABLED != 1 )); then
   log_error "DENYLIST_ENABLED must be 0 or 1."
   return 2
 fi
+
+if (( HIBP_CHECK_ENABLED != 0 && HIBP_CHECK_ENABLED != 1 )); then
+  log_error "HIBP_CHECK_ENABLED must be 0 or 1."
+  return 2
+fi
+
+if (( HIBP_CHECK_ENABLED == 1)); then
+  if (( HIBP_TIMEOUT <= 0 && HIBP_TIMEOUT >= 5*60)); then 
+    log_error "HIBP_TIMEOUT must be between 0s and 5min."
+    return 2
+  fi
+fi    
 
 if (( DENYLIST_ENABLED == 1 )); then
   if [[ -z "$DENYLIST_PATH" ]]; then
