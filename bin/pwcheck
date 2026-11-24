@@ -76,18 +76,21 @@ if (( CHECK_CONFIG_ONLY == 1 )); then
   exit 0
 fi
 
-if ! python3 -c 'import zxcvbn' >/dev/null 2>&1; then
+if ! python.exe -c 'import zxcvbn' </dev/null >/dev/null 2>&1; then
   log_error "zxcvbn is unavailable. Activate the project venv and install zxcvbn."
   exit 2
 fi
 
 
+
 # Acquire password securely
 PASSWORD=""
 if (( USE_STDIN == 1 )); then
-  if ! IFS= read -r PASSWORD && [[ -z "$PASSWORD" ]]; then
+  IFS= read -r PASSWORD || true
+  if [[ -z "$PASSWORD" ]]; then
     log_error "No input received on stdin."
     exit 2
+  fiit 2
   fi
 else
   # Interactive mode via /dev/tty

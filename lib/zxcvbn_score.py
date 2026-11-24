@@ -1,4 +1,5 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+
 import sys
 
 try:
@@ -7,7 +8,8 @@ except ImportError:
     print("Missing dependency: install zxcvbn in the active Python environment.", file=sys.stderr)
     raise SystemExit(2)
 
-password = sys.stdin.read()
+password = sys.stdin.read().rstrip('\r\n')
+
 
 try:
     result = zxcvbn(password)
