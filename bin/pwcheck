@@ -13,6 +13,7 @@ source "$APP_ROOT/lib/entropy.sh"
 source "$APP_ROOT/lib/guessability.sh"
 source "$APP_ROOT/lib/denylist.sh"
 source "$APP_ROOT/lib/hibp.sh"
+source "$APP_ROOT/lib/history.sh"
 
 
 show_help() {
@@ -75,10 +76,12 @@ if (( CHECK_CONFIG_ONLY == 1 )); then
   printf '  MIN_LENGTH=%d\n  MAX_LENGTH=%d\n' "$MIN_LENGTH" "$MAX_LENGTH"
   printf '  MIN_POOL_ENTROPY=%d\n  MIN_SHANNON_ENTROPY=%d\n' "$MIN_POOL_ENTROPY" "$MIN_SHANNON_ENTROPY"
   printf '  MIN_ZXCVBN_SCORE=%d\n' "$MIN_ZXCVBN_SCORE"
-  printf '  DENYLIST_ENABLED=%d\n' "$DENYLIST_ENABLED"
   printf '  DENYLIST_PATH=%s\n' "$DENYLIST_PATH"
   printf '  HIBP_CHECK_ENABLED=%d\n' "$HIBP_CHECK_ENABLED"
   printf '  HIBP_TIMEOUT=%d\n' "$HIBP_TIMEOUT"
+  printf '  HISTORY_MAX_COUNT=%d\n' "$HISTORY_MAX_COUNT"
+  printf '  HISTORY_FILE_PATH=%s\n' "$HISTORY_FILE_PATH"
+  printf '  NEAR_DUPLICATE_MAX_DISTANCE=%d\n' "$NEAR_DUPLICATE_MAX_DISTANCE"
 
   exit 0
 fi
@@ -156,8 +159,7 @@ else
   esac
 fi
 
-if (( DENYLIST_ENABLED == 1 )); then
-  if check_common_password_denylist "$PASSWORD" "$DENYLIST_PATH"; then
+if check_common_password_denylist "$PASSWORD" "$DENYLIST_PATH"; then
     :
   else
     rc=$?
@@ -165,8 +167,8 @@ if (( DENYLIST_ENABLED == 1 )); then
       1) HAS_VIOLATIONS=1 ;; # Password failed the policy check 
       *) exit 2 ;;           # denylist has configuration error
     esac
-  fi
 fi
+
 
 if (( HIBP_CHECK_ENABLED == 1 )); then
   if check_hibp_pwned "$PASSWORD" "$HIBP_TIMEOUT"; then
@@ -179,6 +181,13 @@ if (( HIBP_CHECK_ENABLED == 1 )); then
     esac
   fi
 fi
+
+if ! check_password_history "$PASSWORD" "$HISTORY_FILE_PATH" "$HISTORY_MAX_COUNT" "$NEAR_DUPLICATE_MAX_DISTANCE"; then
+  HAS_VIOLATIONS=1
+  else
+  append_password_history "$PASSWORD" "$HISTORY_FILE_PATH" "$HISTORY_MAX_COUNT"
+fi
+
 
 
 if (( HAS_VIOLATIONS != 0 )); then

@@ -6,10 +6,12 @@ MAX_LENGTH=64
 MIN_POOL_ENTROPY=60
 MIN_SHANNON_ENTROPY=50
 MIN_ZXCVBN_SCORE=3
-DENYLIST_ENABLED=0
-DENYLIST_PATH=""
+DENYLIST_PATH="./data/common-passwords.txt"
 HIBP_CHECK_ENABLED=0
 HIBP_TIMEOUT=0
+HISTORY_MAX_COUNT=5
+HISTORY_FILE_PATH=./data/history/password_history.log
+NEAR_DUPLICATE_MAX_DISTANCE=3  
 
 load_config() {
   local conf_path="$1"
@@ -46,15 +48,15 @@ load_config() {
 
     # Validate according to allowlisted keys
     case "$key" in
-  MIN_LENGTH|MAX_LENGTH|MIN_POOL_ENTROPY|MIN_SHANNON_ENTROPY|MIN_ZXCVBN_SCORE|DENYLIST_ENABLED|HIBP_CHECK_ENABLED|HIBP_TIMEOUT)
+  MIN_LENGTH|MAX_LENGTH|MIN_POOL_ENTROPY|MIN_SHANNON_ENTROPY|MIN_ZXCVBN_SCORE|HIBP_CHECK_ENABLED|HIBP_TIMEOUT|HISTORY_MAX_COUNT|NEAR_DUPLICATE_MAX_DISTANCE)
     if [[ ! "$val" =~ ^[0-9]+$ ]]; then
       log_error "Key '$key' must be a numeric integer. Got '$val' at line $line_no"
       return 2
     fi
     printf -v "$key" '%d' "$val"
     ;;
-  DENYLIST_PATH)
-    DENYLIST_PATH="$val"
+  DENYLIST_PATH|HISTORY_FILE_PATH)
+    printf -v "$key" '%s' "$val"
     ;;
   *)
     log_error "Unknown configuration key '$key' at line $line_no in $conf_path"
@@ -94,11 +96,6 @@ load_config() {
   return 2
 fi
 
-if (( DENYLIST_ENABLED != 0 && DENYLIST_ENABLED != 1 )); then
-  log_error "DENYLIST_ENABLED must be 0 or 1."
-  return 2
-fi
-
 if (( HIBP_CHECK_ENABLED != 0 && HIBP_CHECK_ENABLED != 1 )); then
   log_error "HIBP_CHECK_ENABLED must be 0 or 1."
   return 2
@@ -111,23 +108,33 @@ if (( HIBP_CHECK_ENABLED == 1)); then
   fi
 fi    
 
-if (( DENYLIST_ENABLED == 1 )); then
-  if [[ -z "$DENYLIST_PATH" ]]; then
-    log_error "DENYLIST_PATH must be set when DENYLIST_ENABLED=1."
+if [[ -z "$DENYLIST_PATH" ]]; then
+    log_error "DENYLIST_PATH must be set."
     return 2
-  fi
-
-  if [[ ! -f "$DENYLIST_PATH" ]]; then
-    log_error "DENYLIST_PATH does not exist: $DENYLIST_PATH"
-    return 2
-  fi
-
-  if [[ ! -r "$DENYLIST_PATH" ]]; then
-    log_error "DENYLIST_PATH is not readable: $DENYLIST_PATH"
-    return 2
-  fi
 fi
 
+if [[ ! -f "$DENYLIST_PATH" ]]; then
+    log_error "DENYLIST_PATH does not exist: $DENYLIST_PATH"
+    return 2
+fi
+
+if [[ ! -r "$DENYLIST_PATH" ]]; then
+    log_error "DENYLIST_PATH is not readable: $DENYLIST_PATH"
+    return 2
+fi
+
+if (( HISTORY_MAX_COUNT < 5 && HISTORY_MAX_COUNT > 24)); then
+  log_error "HISTORY_MAX_COUNT must be between 5 and 24."
+fi
+
+if [[ -z "$HISTORY_FILE_PATH" ]]; then
+    log_error "HISTORY_FILE_PATH must be set."
+    return 2
+fi
+
+if ((NEAR_DUPLICATE_MAX_DISTANCE < 0)); then
+  log_error "NEAR_DUPLICATE_MAX_DISTANCE must be non-negative."
+fi
 
 
   return 0

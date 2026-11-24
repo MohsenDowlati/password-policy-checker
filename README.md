@@ -18,9 +18,9 @@
 - [x] Case-insensitive and leetspeak-normalized matching before lookup
 - [x] Optional: HIBP k-anonymity API check (SHA-1 prefix, first 5 hex chars only — never send the full hash)
 ## Reuse & History
-- [ ] Enforce “not one of the last N passwords” (N = 5–24) via a history file
-- [ ] Detect near-duplicates (e.g. Summer2024! → Summer2025!) using edit distance / normalized comparison
-- [ ] Detect increment-only changes (Password1 → Password2)
+- [x] Enforce “not one of the last N passwords” (N = 5–24) via a history file
+- [x] Detect near-duplicates (e.g. Summer2024! → Summer2025!) using edit distance / normalized comparison
+- [x] Detect increment-only changes (Password1 → Password2)
 ## Expiration & Rotation
 - [ ] No forced periodic rotation (NIST: rotate only on evidence of compromise)
 - [ ] Optional “max age” flag for compliance profiles (PCI-DSS, ISO 27001) — configurable, off by default
