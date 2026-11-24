@@ -16,7 +16,7 @@
 ## Blocklist / Denylist Checks
 - [x] Check against a common-password list (rockyou.txt, SecLists/10-million-password-list-top-1000000.txt)
 - [x] Case-insensitive and leetspeak-normalized matching before lookup
-- [ ] Optional: HIBP k-anonymity API check (SHA-1 prefix, first 5 hex chars only — never send the full hash)
+- [x] Optional: HIBP k-anonymity API check (SHA-1 prefix, first 5 hex chars only — never send the full hash)
 ## Reuse & History
 - [ ] Enforce “not one of the last N passwords” (N = 5–24) via a history file
 - [ ] Detect near-duplicates (e.g. Summer2024! → Summer2025!) using edit distance / normalized comparison
