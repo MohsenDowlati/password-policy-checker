@@ -12,6 +12,7 @@ source "$APP_ROOT/lib/composition.sh"
 source "$APP_ROOT/lib/entropy.sh"
 source "$APP_ROOT/lib/guessability.sh"
 source "$APP_ROOT/lib/denylist.sh"
+source "$APP_ROOT/lib/hibp.sh"
 
 
 show_help() {
@@ -76,6 +77,9 @@ if (( CHECK_CONFIG_ONLY == 1 )); then
   printf '  MIN_ZXCVBN_SCORE=%d\n' "$MIN_ZXCVBN_SCORE"
   printf '  DENYLIST_ENABLED=%d\n' "$DENYLIST_ENABLED"
   printf '  DENYLIST_PATH=%s\n' "$DENYLIST_PATH"
+  printf '  HIBP_CHECK_ENABLED=%d\n' "$HIBP_CHECK_ENABLED"
+  printf '  HIBP_TIMEOUT=%d\n' "$HIBP_TIMEOUT"
+
   exit 0
 fi
 
@@ -160,6 +164,18 @@ if (( DENYLIST_ENABLED == 1 )); then
     case "$rc" in
       1) HAS_VIOLATIONS=1 ;; # Password failed the policy check 
       *) exit 2 ;;           # denylist has configuration error
+    esac
+  fi
+fi
+
+if (( HIBP_CHECK_ENABLED == 1 )); then
+  if check_hibp_pwned "$PASSWORD" "$HIBP_TIMEOUT"; then
+    :
+  else
+    rc=$?
+    case "$rc" in
+      1) HAS_VIOLATIONS=1 ;; # Password failed the policy check
+      *) exit 2 ;;           # Network error
     esac
   fi
 fi
