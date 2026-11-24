@@ -3,6 +3,8 @@
 # Default fallbacks
 MIN_LENGTH=14
 MAX_LENGTH=64
+MIN_POOL_ENTROPY=60
+MIN_SHANNON_ENTROPY=50
 
 load_config() {
   local conf_path="$1"
@@ -39,7 +41,7 @@ load_config() {
 
     # Validate according to allowlisted keys
     case "$key" in
-      MIN_LENGTH|MAX_LENGTH)
+      MIN_LENGTH|MAX_LENGTH|MIN_POOL_ENTROPY|MIN_SHANNON_ENTROPY)
         if [[ ! "$val" =~ ^[0-9]+$ ]]; then
           log_error "Key '$key' must be a numeric integer. Got '$val' at line $line_no"
           return 2
