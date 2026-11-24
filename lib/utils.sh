@@ -21,6 +21,7 @@ if [[ -t 2 && -z "${NO_COLOR:-}" ]]; then
   readonly C_GREEN='\033[32m'
   readonly C_YELLOW='\033[33m'
   readonly C_BLUE='\033[34m'
+  readonly C_ORANGE='\x1b[38;5;214m'
 else
   readonly C_RESET=''
   readonly C_BOLD=''
@@ -29,6 +30,7 @@ else
   readonly C_GREEN=''
   readonly C_YELLOW=''
   readonly C_BLUE=''
+  readonly C_ORANGE=''
 fi
 
 # Stderr-directed logging helpers
@@ -37,7 +39,7 @@ log_info() {
 }
 
 log_warn() {
-  printf '%b[WARN]%b %s\n' "${C_YELLOW}${C_BOLD}" "${C_RESET}" "$1" >&2
+  printf '%b[WARN]%b %s\n' "${C_ORANGE}${C_BOLD}" "${C_RESET}" "$1" >&2
 }
 
 log_error() {

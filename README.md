@@ -12,7 +12,7 @@
 - [x] Shannon entropy estimate (bits) with a configurable threshold (e.g. ≥ 60 bits)
 - [x] Character-set-size based entropy: log2(pool_size) × length
 - [x] Optional: integrate zxcvbn (via zxcvbn-cli or a small Python/Node call) for realistic guessability scoring
-- [ ] Penalize dictionary words, names, dates, and leetspeak substitutions (p@ssw0rd)
+- [x] Penalize dictionary words, names, dates, and leetspeak substitutions (p@ssw0rd)
 ## Blocklist / Denylist Checks
 - [ ] Check against a common-password list (rockyou.txt, SecLists/10-million-password-list-top-1000000.txt)
 - [ ] Case-insensitive and leetspeak-normalized matching before lookup
