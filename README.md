@@ -14,8 +14,8 @@
 - [x] Optional: integrate zxcvbn (via zxcvbn-cli or a small Python/Node call) for realistic guessability scoring
 - [x] Penalize dictionary words, names, dates, and leetspeak substitutions (p@ssw0rd)
 ## Blocklist / Denylist Checks
-- [ ] Check against a common-password list (rockyou.txt, SecLists/10-million-password-list-top-1000000.txt)
-- [ ] Case-insensitive and leetspeak-normalized matching before lookup
+- [x] Check against a common-password list (rockyou.txt, SecLists/10-million-password-list-top-1000000.txt)
+- [x] Case-insensitive and leetspeak-normalized matching before lookup
 - [ ] Check against project/company name, username, email local-part
 - [ ] Check against a “context words” file (brand names, product names, city names)
 - [ ] Optional: HIBP k-anonymity API check (SHA-1 prefix, first 5 hex chars only — never send the full hash)

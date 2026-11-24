@@ -11,6 +11,7 @@ source "$APP_ROOT/lib/config.sh"
 source "$APP_ROOT/lib/composition.sh"
 source "$APP_ROOT/lib/entropy.sh"
 source "$APP_ROOT/lib/guessability.sh"
+source "$APP_ROOT/lib/denylist.sh"
 
 
 show_help() {
@@ -73,6 +74,8 @@ if (( CHECK_CONFIG_ONLY == 1 )); then
   printf '  MIN_LENGTH=%d\n  MAX_LENGTH=%d\n' "$MIN_LENGTH" "$MAX_LENGTH"
   printf '  MIN_POOL_ENTROPY=%d\n  MIN_SHANNON_ENTROPY=%d\n' "$MIN_POOL_ENTROPY" "$MIN_SHANNON_ENTROPY"
   printf '  MIN_ZXCVBN_SCORE=%d\n' "$MIN_ZXCVBN_SCORE"
+  printf '  DENYLIST_ENABLED=%d\n' "$DENYLIST_ENABLED"
+  printf '  DENYLIST_PATH=%s\n' "$DENYLIST_PATH"
   exit 0
 fi
 
@@ -147,6 +150,18 @@ else
     1) HAS_VIOLATIONS=1 ;;  # Password failed the policy check
     *) exit 2 ;;             # Scoring could not run
   esac
+fi
+
+if (( DENYLIST_ENABLED == 1 )); then
+  if check_common_password_denylist "$PASSWORD" "$DENYLIST_PATH"; then
+    :
+  else
+    rc=$?
+    case "$rc" in
+      1) HAS_VIOLATIONS=1 ;; # Password failed the policy check 
+      *) exit 2 ;;           # denylist has configuration error
+    esac
+  fi
 fi
 
 
