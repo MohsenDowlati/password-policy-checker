@@ -5,6 +5,7 @@ MIN_LENGTH=14
 MAX_LENGTH=64
 MIN_POOL_ENTROPY=60
 MIN_SHANNON_ENTROPY=50
+MIN_ZXCVBN_SCORE=3
 
 load_config() {
   local conf_path="$1"
@@ -41,7 +42,7 @@ load_config() {
 
     # Validate according to allowlisted keys
     case "$key" in
-      MIN_LENGTH|MAX_LENGTH|MIN_POOL_ENTROPY|MIN_SHANNON_ENTROPY)
+      MIN_LENGTH|MAX_LENGTH|MIN_POOL_ENTROPY|MIN_SHANNON_ENTROPY|MIN_ZXCVBN_SCORE)
         if [[ ! "$val" =~ ^[0-9]+$ ]]; then
           log_error "Key '$key' must be a numeric integer. Got '$val' at line $line_no"
           return 2
@@ -80,6 +81,11 @@ load_config() {
     log_error "MIN_SHANNON_ENTROPY ($MIN_SHANNON_ENTROPY) must be between 0 and 1024."
     return 2
   fi
+
+  if (( MIN_ZXCVBN_SCORE < 0 || MIN_ZXCVBN_SCORE > 4 )); then
+  log_error "MIN_ZXCVBN_SCORE must be between 0 and 4."
+  return 2
+fi
 
 
   return 0
