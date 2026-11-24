@@ -71,5 +71,16 @@ load_config() {
     return 2
   fi
 
+    if (( MIN_POOL_ENTROPY < 0 || MIN_POOL_ENTROPY > 1024 )); then
+    log_error "MIN_POOL_ENTROPY ($MIN_POOL_ENTROPY) must be between 0 and 1024."
+    return 2
+  fi
+
+  if (( MIN_SHANNON_ENTROPY < 0 || MIN_SHANNON_ENTROPY > 1024 )); then
+    log_error "MIN_SHANNON_ENTROPY ($MIN_SHANNON_ENTROPY) must be between 0 and 1024."
+    return 2
+  fi
+
+
   return 0
 }
