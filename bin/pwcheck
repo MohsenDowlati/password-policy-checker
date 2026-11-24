@@ -10,6 +10,7 @@ source "$APP_ROOT/lib/utils.sh"
 source "$APP_ROOT/lib/config.sh"
 source "$APP_ROOT/lib/composition.sh"
 source "$APP_ROOT/lib/entropy.sh"
+source "$APP_ROOT/lib/guessability.sh"
 
 
 show_help() {
@@ -71,7 +72,13 @@ if (( CHECK_CONFIG_ONLY == 1 )); then
   printf 'Configuration at "%s" is valid.\n' "$CONFIG_FILE"
   printf '  MIN_LENGTH=%d\n  MAX_LENGTH=%d\n' "$MIN_LENGTH" "$MAX_LENGTH"
   printf '  MIN_POOL_ENTROPY=%d\n  MIN_SHANNON_ENTROPY=%d\n' "$MIN_POOL_ENTROPY" "$MIN_SHANNON_ENTROPY"
+  printf '  MIN_ZXCVBN_SCORE=%d\n' "$MIN_ZXCVBN_SCORE"
   exit 0
+fi
+
+if ! python3 -c 'import zxcvbn' >/dev/null 2>&1; then
+  log_error "zxcvbn is unavailable. Activate the project venv and install zxcvbn."
+  exit 2
 fi
 
 
@@ -127,6 +134,16 @@ fi
 
 if ! check_entropy "$PASSWORD" "$MIN_POOL_ENTROPY" "$MIN_SHANNON_ENTROPY"; then
   HAS_VIOLATIONS=1
+fi
+
+if check_guessability "$PASSWORD" "$MIN_ZXCVBN_SCORE"; then
+  :
+else
+  rc=$?
+  case "$rc" in
+    1) HAS_VIOLATIONS=1 ;;  # Password failed the policy check
+    *) exit 2 ;;             # Scoring could not run
+  esac
 fi
 
 
