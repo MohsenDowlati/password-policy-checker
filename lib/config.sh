@@ -6,6 +6,8 @@ MAX_LENGTH=64
 MIN_POOL_ENTROPY=60
 MIN_SHANNON_ENTROPY=50
 MIN_ZXCVBN_SCORE=3
+DENYLIST_ENABLED=0
+DENYLIST_PATH=""
 
 load_config() {
   local conf_path="$1"
@@ -42,17 +44,20 @@ load_config() {
 
     # Validate according to allowlisted keys
     case "$key" in
-      MIN_LENGTH|MAX_LENGTH|MIN_POOL_ENTROPY|MIN_SHANNON_ENTROPY|MIN_ZXCVBN_SCORE)
-        if [[ ! "$val" =~ ^[0-9]+$ ]]; then
-          log_error "Key '$key' must be a numeric integer. Got '$val' at line $line_no"
-          return 2
-        fi
-        printf -v "$key" '%d' "$val"
-        ;;
-      *)
-        log_error "Unknown configuration key '$key' at line $line_no in $conf_path"
-        return 2
-        ;;
+  MIN_LENGTH|MAX_LENGTH|MIN_POOL_ENTROPY|MIN_SHANNON_ENTROPY|MIN_ZXCVBN_SCORE|DENYLIST_ENABLED)
+    if [[ ! "$val" =~ ^[0-9]+$ ]]; then
+      log_error "Key '$key' must be a numeric integer. Got '$val' at line $line_no"
+      return 2
+    fi
+    printf -v "$key" '%d' "$val"
+    ;;
+  DENYLIST_PATH)
+    DENYLIST_PATH="$val"
+    ;;
+  *)
+    log_error "Unknown configuration key '$key' at line $line_no in $conf_path"
+    return 2
+    ;;
     esac
   done < "$conf_path"
 
@@ -86,6 +91,29 @@ load_config() {
   log_error "MIN_ZXCVBN_SCORE must be between 0 and 4."
   return 2
 fi
+
+if (( DENYLIST_ENABLED != 0 && DENYLIST_ENABLED != 1 )); then
+  log_error "DENYLIST_ENABLED must be 0 or 1."
+  return 2
+fi
+
+if (( DENYLIST_ENABLED == 1 )); then
+  if [[ -z "$DENYLIST_PATH" ]]; then
+    log_error "DENYLIST_PATH must be set when DENYLIST_ENABLED=1."
+    return 2
+  fi
+
+  if [[ ! -f "$DENYLIST_PATH" ]]; then
+    log_error "DENYLIST_PATH does not exist: $DENYLIST_PATH"
+    return 2
+  fi
+
+  if [[ ! -r "$DENYLIST_PATH" ]]; then
+    log_error "DENYLIST_PATH is not readable: $DENYLIST_PATH"
+    return 2
+  fi
+fi
+
 
 
   return 0
