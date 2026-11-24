@@ -9,6 +9,8 @@ APP_ROOT="$(cd -P "$BIN_DIR/.." && pwd)"
 source "$APP_ROOT/lib/utils.sh"
 source "$APP_ROOT/lib/config.sh"
 source "$APP_ROOT/lib/composition.sh"
+source "$APP_ROOT/lib/entropy.sh"
+
 
 show_help() {
   cat << 'EOF'
@@ -68,8 +70,10 @@ load_config "$CONFIG_FILE" || exit 2
 if (( CHECK_CONFIG_ONLY == 1 )); then
   printf 'Configuration at "%s" is valid.\n' "$CONFIG_FILE"
   printf '  MIN_LENGTH=%d\n  MAX_LENGTH=%d\n' "$MIN_LENGTH" "$MAX_LENGTH"
+  printf '  MIN_POOL_ENTROPY=%d\n  MIN_SHANNON_ENTROPY=%d\n' "$MIN_POOL_ENTROPY" "$MIN_SHANNON_ENTROPY"
   exit 0
 fi
+
 
 # Acquire password securely
 PASSWORD=""
@@ -120,6 +124,11 @@ fi
 if ! check_keyboard_walk "$PASSWORD"; then
   HAS_VIOLATIONS=1
 fi
+
+if ! check_entropy "$PASSWORD" "$MIN_POOL_ENTROPY" "$MIN_SHANNON_ENTROPY"; then
+  HAS_VIOLATIONS=1
+fi
+
 
 if (( HAS_VIOLATIONS != 0 )); then
   exit 1

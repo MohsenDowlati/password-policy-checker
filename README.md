@@ -9,8 +9,8 @@
 - [x] Reject sequential runs (abcdef, 123456, qwerty) — forwards and backwards
 - [x] Reject keyboard-walk patterns (asdfgh, zxcvbn-style rows)
 ## Entropy & Strength Estimation
-- [ ] Shannon entropy estimate (bits) with a configurable threshold (e.g. ≥ 60 bits)
-- [ ] Character-set-size based entropy: log2(pool_size) × length
+- [x] Shannon entropy estimate (bits) with a configurable threshold (e.g. ≥ 60 bits)
+- [x] Character-set-size based entropy: log2(pool_size) × length
 - [ ] Optional: integrate zxcvbn (via zxcvbn-cli or a small Python/Node call) for realistic guessability scoring
 - [ ] Penalize dictionary words, names, dates, and leetspeak substitutions (p@ssw0rd)
 ## Blocklist / Denylist Checks
